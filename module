@@ -1,0 +1,137 @@
+using namespace std;
+
+string current_dir(void);
+vector<string> list_files(void);
+bool touch_file(string);
+void init_map();
+
+#define col(b) SetConsoleTextAttribute(h,b)
+HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+string c_folder = "";
+
+string current_dir() 
+{
+	//char buffer[MAX_PATH];
+  	//GetModuleFileName( NULL, buffer, MAX_PATH );
+  	//string f = string(buffer);
+	//return f.substr(0, f.find_last_of( "\\/" ));
+	return filesystem::current_path().string();
+}
+
+void disp_help()
+{
+	cout<<"Supported Commands: ";
+	col(160);
+	cout<<"cat";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"touch";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"pwd";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"ls";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"clear";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"cd";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"mkdir";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"nautilus";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"exit\n";
+	col(15);
+}
+
+void tilde(string t)
+{
+
+	if(c_folder=="" || c_folder==t)
+	{
+		c_folder = t;
+		cout<<"~";
+	}
+	else cout<<"~/"<<t;
+	
+}
+
+vector<string> list_files()
+{
+	vector<string> list;
+	for (const auto & entry : filesystem::directory_iterator(current_dir()))
+        {	
+		filesystem::path p = entry.path();
+		string pth = p.string();
+		int index = pth.find_last_of("\\/");
+		list.push_back(pth.substr(index+1));
+	}
+	return list;
+	
+}
+
+bool touch_file(string name)
+{
+
+	fstream file;
+	file.open(name, ios::out);
+	if(!file) return 0;
+	return 1;
+}
+
+void change_curr_dir(const char* dir)
+{
+	if(chdir(dir))
+	{
+		cout<<"Directory ";
+		col(112);
+		cout<<dir;
+		col(15);
+		cout<<" not found"<<endl;
+	}
+}
+	
+void make_dir(const char* name)
+{
+	if(mkdir(name)==-1)
+	{
+		cout<<"Error creating directory\n";
+	}
+}
+
+
+
+void cat_file(string __fname)
+{	
+	ifstream f(__fname);
+	if(!(f.get(), f.eof()))
+	{
+		if(f.is_open()) 
+		{
+			cout<<f.rdbuf();
+			cout<<endl;
+		}
+		else cout<<"'"<<__fname<<"' doesn't exist!"<<endl;
+	}
+}
+
+void init_map(map<string,int>& cmd)
+{	
+	vector<string> cmds = { "touch", "pwd", "cat", "ls", "help", "exit", "clear", "nautilus", "cd", "mkdir"
+};
+	for(int i=0; i<cmds.size(); i++) cmd[cmds[i]]=i;
+}
