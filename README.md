@@ -18,5 +18,5 @@ Supported Commands:
 - coming soon...
 ## Preview
 
-![Preview]("/snapshot/preview.gif")
+![Preview](/snapshot/preview.gif)
 
