@@ -1,18 +1,35 @@
 #include<bits/stdc++.h>
 #include<windows.h>
 #include<direct.h>
+#include<dirent.h>
+#include<unistd.h>
 #include<signal.h>
 #include<cstdlib>
+#include<cstdio>
 #include<ctime>
 #include<cstring>
 #include<filesystem>
 #include"module.h"
 
+string get_full_name(vector<string>& args)
+{
+	string name = "";
+	for(int i = 1; i < args.size(); i++) 
+	{
+		if(i != args.size() - 1) { name+=args[i]; name+=" "; }
+		else name+=args[i];
+	}
+	return name;
+}
 
-int get_command_id(string);
-void fun(void);
-
-map<string,int> cmd_map;
+void log_err(string e, string msg)
+{
+	col(192);
+	cout << e;
+	col(15);
+	cout << " : ";
+	cout << msg << endl;
+}
 
 int main()
 {	
@@ -41,12 +58,14 @@ int main()
 			case 0:
 			for(int cn=1; cn<len; cn++) if(!touch_file(args[cn])) cout<<"Error creating "<<args[cn]<<endl;
 			break;
+
 			case 1:
 			cout<<current_dir()<<endl;
 			break;
+
 			case 2:
-			if(len==1) cout<<"Missing operand"<<endl;
-			else cat_read(args[1]);
+			if(len==1) log_err(args[0], "Missing operand");
+			else cat_read(get_full_name(args));
 			break;
 			
 			case 3:
@@ -60,52 +79,64 @@ int main()
 						col(144);
 						cout<<ss;
 						col(15);
-						
 					}
 					else cout<<ss;
 					cout<<"  ";
 				}
 				if(!list.empty())
 				cout<<endl;
-				break;
 			}
+			break;
+
 			case 4:
 			disp_help();
 			break;
+
 			case 5:
 			cout<<"logout\n";
 			return 0;
 			break;
+
 			case 6:
 			system("cls");
 			break;
+
 			case 7:
 			system("explorer.exe");
 			break;
+
 			case 8:
-			if(len==1) {
-				cout<<"Directory ";
-				col(112);
-				cout<<".";
-				col(15);
-				cout<<" not found"<<endl;
-			}else 
-			change_curr_dir(args[1].c_str());
+			if(len==1) log_err(args[0], "Missing operand");
+			else 
+			{
+				change_curr_dir(get_full_name(args).c_str());
+			}
 			break;
+
+
 			case 9:
-			if(len==1) {
-				cout<<"Unable to create directory ";
-				col(112);
-				cout<<".";
-				col(15);
-				cout<<endl;
-			}else
-			make_dir(args[1].c_str());
+			if(len==1) log_err(args[0], "Missing operand");
+			else make_dir(get_full_name(args).c_str());
 			break;
 
 			case 10:
-			if(len == 1) cout << "Missing operand" << endl;
-			else rm_file(args[1]);
+			if(len == 1) log_err(args[0], "Missing operand");
+			else rm_file(get_full_name(args));
+			break;
+
+			case 11:
+			if(len == 1) log_err(args[0], "Missing operand");
+			else rm_dir(get_full_name(args));
+			break;
+
+			case 12:
+			if(len < 3) log_err(args[0], "Missing operand");
+			else 
+			{
+				vector<string> v;
+				for(int i = 1; i < len; i++) v.emplace_back(args[i]);
+				move(v);
+			}
 			break;
 
 			case 13:
@@ -114,14 +145,18 @@ int main()
 			break;
 
 			case 14:
-			cat_write();
+			log_err(args[0], "Missing operand");
 			break;
 
 			default:
-			col(192);
-			cout<<args[0];
-			col(15);
-			cout<<" : command not found"<<endl;
+			if(args[0].find("cat>") != string::npos) cat_write(args[0]);
+			else
+			{
+				col(192);
+				cout<<args[0];
+				col(15);
+				cout<<" : command not found"<<endl;
+			}
 		}
 
 	}

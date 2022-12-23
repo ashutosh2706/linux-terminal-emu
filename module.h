@@ -9,6 +9,10 @@ void init_map();
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 string home_dir = "";
 
+void fun(void);
+int get_command_id(string);
+map<string,int> cmd_map;
+
 void init_command_map(map<string,int>& cmd)
 {	
 	vector<string> commands = { "touch", "pwd", "cat", "ls", "help", "exit", "clear", "nautilus", "cd", "mkdir", "rm", "rmdir", "mv", "date", "cat>" };
@@ -24,10 +28,6 @@ void disp_help()
 {
 	cout<<"Supported Commands: ";
 	col(160);
-	cout<<"cat";
-	col(15);
-	cout<<" ";
-	col(160);
 	cout<<"touch";
 	col(15);
 	cout<<" ";
@@ -36,11 +36,11 @@ void disp_help()
 	col(15);
 	cout<<" ";
 	col(160);
-	cout<<"ls";
+	cout<<"cat";
 	col(15);
 	cout<<" ";
 	col(160);
-	cout<<"clear";
+	cout<<"ls";
 	col(15);
 	cout<<" ";
 	col(160);
@@ -52,12 +52,33 @@ void disp_help()
 	col(15);
 	cout<<" ";
 	col(160);
-	cout<<"nautilus";
+	cout<<"rm";
 	col(15);
 	cout<<" ";
 	col(160);
-	cout<<"exit\n";
+	cout<<"rmdir";
 	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"mv";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"date";
+	col(15);
+	cout<<" ";
+	col(160);
+	cout<<"nautilus";
+	col(15);
+	cout << " ";
+	col(160);
+	cout << "clear";
+	col(15);
+	cout << " ";
+	col(160);
+	cout << "exit";
+	col(15);
+	cout << endl;
 }
 
 void dir_tree(string t)
@@ -111,26 +132,62 @@ void make_dir(const char* name)
 {
 	if(mkdir(name)==-1)
 	{
-		cout<<"Error creating directory\n";
+		cout<<"Error creating directory ";
+		col(112);
+		cout<<name;
+		col(15);
+		cout << " " << endl;
 	}
 }
 
 void cat_read(string __fname)
 {	
-	ifstream f(__fname);
-	if(!(f.get(), f.eof()))
+
+	ifstream infile; // Declare input file stream
+	infile.open(__fname); // Open file for reading
+	if(!infile.good())		// Check if file exists and is readable
 	{
-		if(f.is_open()) 
-		{
-			cout<<f.rdbuf();
-			cout<<endl;
-		}
-		else cout<<"'"<<__fname<<"' doesn't exist!"<<endl;
+		cout << "File ";
+		col(112);
+		cout << __fname;
+		col(15);
+		cout << " not found or is not readable" << endl;
+		return;
+
 	}
+	string line;
+	while (std::getline(infile, line)) 	// Read a line from the file
+	{
+    	cout << line << endl; // Print the line to the console
+  	}
+
+  	infile.close();
+
+}
+
+void cat_write(string arg)
+{	
+	string file = arg.substr(4), input;
+	ofstream output_file;
+	output_file.open(file);
+	while(getline(cin, input) && input != "\0")
+	{
+		output_file << input << endl;
+	}
+	output_file.close();
 }
 
 void rm_file(string file_name)
 {
+	if(filesystem::is_directory(file_name))
+	{
+		cout << "Cannot remove ";
+		col(112);
+		cout << file_name;
+		col(15);
+		cout << " : Is a directory" << endl;
+		return;
+	}
 	try 
 	{
 		if(!(filesystem::remove(file_name)))
@@ -145,9 +202,62 @@ void rm_file(string file_name)
 	catch(const filesystem::filesystem_error& err) 
 	{
 		col(192);
-		cout << "FileSystem Error:";
+		cout << "filesystem error";
 		col(15);
-		cout << " " << err.what() << endl;
+		cout << " : " << err.what() << endl;
+	}
+}
+
+void delete_dir(const char* dir_name)
+{
+	DIR* dir = opendir(dir_name);
+  	if (dir == nullptr) return;
+	dirent* entry;
+	while ((entry = readdir(dir)) != nullptr)
+  	{
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+
+    	string path = string(dir_name) + "/" + entry->d_name;
+    	if (entry->d_type == DT_DIR)
+    	{
+      		// Recursively delete subdirectory
+      		delete_dir(path.c_str());
+		rmdir(path.c_str());
+    	}
+    	else
+    	{
+      		// If file found then delete file
+      		int result = unlink(path.c_str());
+      		if (result != 0)
+      		{
+        		cout << "Error deleting file" << endl;
+      		}
+    	}
+  	}
+	closedir(dir);
+}
+
+void rm_dir(string dir_name)
+{
+	if(!filesystem::is_directory(dir_name))
+	{
+		cout << "Failed to remove ";
+		col(112);
+		cout << dir_name;
+		col(15);
+		cout << " : Not a directory" << endl;
+	}else
+	{
+		delete_dir(dir_name.c_str());
+		int result = rmdir(dir_name.c_str());
+  		if (result != 0)
+  		{
+			cout << "Directory ";
+			col(112);
+			cout << dir_name;
+			col(15);
+			cout << " not removed" << endl;
+  		}
 	}
 }
 
@@ -233,7 +343,24 @@ void _DATE(string arg)
 
 }
 
-void cat_write()
-{
-	
+void move(vector<string>& files)
+{	
+	/*  Moving file from one folder to another can be cleverly done using rename(old_name, new_name) method
+		We can pass the new name for file with a prefix string containing "/" concatenated with existing file name
+		Function will treat prefix string before "/" as folder and moves the file into that folder.
+		As we know file "tmp/new.txt" shows that "new.txt" file is inside "tmp" folder. This follows exactly same thing
+	*/
+	string dest = files.back();							// For moving multiple files, we store them in an array, and iterate over that array to move them one by one
+	for(int i = 0; i < files.size() - 1; i++)			// Last entry is the destination itself, so iterate from start -> size-1
+	{	
+		string dir = dest + "/" + files[i];
+		if(rename(files[i].c_str(), dir.c_str()))
+		{
+			cout << "File ";
+			col(112);
+			cout << files[i];
+			col(15);
+			cout << " not moved" << endl;
+		}
+	}
 }
