@@ -3,22 +3,23 @@
 #include<direct.h>
 #include<signal.h>
 #include<cstdlib>
+#include<ctime>
+#include<cstring>
 #include<filesystem>
-#include"module"
+#include"module.h"
 
 
-
-int get_id(string);
+int get_command_id(string);
 void fun(void);
 
 map<string,int> cmd_map;
 
 int main()
 {	
-	init_map(cmd_map);
+	init_command_map(cmd_map);
 	system("cls");
 	col(112);
-	cout<<"   Linux Terminal 1.0                                     Welcome                                                       ";
+	cout<<"   Linux Terminal                                         Welcome                                                       ";
 	col(15);
 	cout<<"\n\nType 'help' for info\n\n\n";
 	string comm;
@@ -35,7 +36,7 @@ int main()
 		}
 		args.push_back(arg);
 		int len = args.size();
-		switch(get_id(args[0]))
+		switch(get_command_id(args[0]))
 		{
 			case 0:
 			for(int cn=1; cn<len; cn++) if(!touch_file(args[cn])) cout<<"Error creating "<<args[cn]<<endl;
@@ -44,8 +45,8 @@ int main()
 			cout<<current_dir()<<endl;
 			break;
 			case 2:
-			if(len==1) cout<<"Null Argument"<<endl;
-			else cat_file(args[1]);
+			if(len==1) cout<<"Missing operand"<<endl;
+			else cat_read(args[1]);
 			break;
 			
 			case 3:
@@ -62,7 +63,7 @@ int main()
 						
 					}
 					else cout<<ss;
-					cout<<" ";
+					cout<<"  ";
 				}
 				if(!list.empty())
 				cout<<endl;
@@ -102,6 +103,20 @@ int main()
 			make_dir(args[1].c_str());
 			break;
 
+			case 10:
+			if(len == 1) cout << "Missing operand" << endl;
+			else rm_file(args[1]);
+			break;
+
+			case 13:
+			if(len == 1) _DATE("");
+			else _DATE(args[1]);
+			break;
+
+			case 14:
+			cat_write();
+			break;
+
 			default:
 			col(192);
 			cout<<args[0];
@@ -115,7 +130,7 @@ int main()
 }
 
 
-int get_id(string cmd)
+int get_command_id(string cmd)
 {
 	if(cmd_map.find(cmd)==cmd_map.end()) return -1;
 	else return cmd_map[cmd];
@@ -128,7 +143,7 @@ void fun()
 	col(10);
 	cout<<"user@linux-terminal:";
 	col(9);
-	tilde(s.substr(p+1));
+	dir_tree(s.substr(p+1));
 	col(10);
 	cout<<"$ ";
 	col(15);
