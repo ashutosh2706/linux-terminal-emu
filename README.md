@@ -1,7 +1,7 @@
 
 # Linux Terminal Emulator
 
-A minimal linux terminal emulator built using c++
+A minimal linux terminal emulator built using C++
 ## Appendix
 
 Supported Commands:
@@ -12,10 +12,13 @@ Supported Commands:
 - cat
 - cd
 - mkdir
+- rm
+- rmdir
+- mv
+- date
 - nautilus (explorer.exe on windows)
 - clear
 - exit
-- coming soon...
 ## Preview
 
 ![Preview](/snapshot/preview.gif)
