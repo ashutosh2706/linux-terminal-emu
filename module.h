@@ -7,11 +7,46 @@ void init_map();
 
 #define col(b) SetConsoleTextAttribute(h,b)
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-string home_dir = "";
+string home_dir = "", user_handle = "user";
 
 void fun(void);
 int get_command_id(string);
 map<string,int> cmd_map;
+
+void get_usr()
+{	
+	char path[MAX_PATH];
+	string usr_path;
+	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PROFILE, nullptr, 0, path))) { string s(path); usr_path = s; }
+	else return;
+	if(filesystem::exists(usr_path + "/.terminal"))
+	{
+		ifstream inf;
+		inf.open(usr_path + "/.terminal");
+		string s;
+		getline(inf, s);
+		user_handle = s;
+		inf.close();
+	}else
+	{	
+		string name;
+		cout << "Enter username: ";
+		getline(cin, name);
+		// cout << "Enter password: ";
+		// char c = getch();
+		// while (c != '\r') 
+		// {  // '\r' is the ASCII code for the Enter key
+		// 	pwd += c;
+		// 	c = getch();
+		// }
+		ofstream out;
+		out.open(usr_path + "/.terminal");
+		out << name;
+		out.close();
+		user_handle = name;
+		system("cls");
+	}
+}
 
 void init_command_map(map<string,int>& cmd)
 {	
@@ -261,7 +296,7 @@ void rm_dir(string dir_name)
 	}
 }
 
-void _DATE(string arg)
+void date(string arg)
 {
 	time_t now;
 	

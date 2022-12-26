@@ -1,9 +1,11 @@
 #include<bits/stdc++.h>
+#include<conio.h>
 #include<windows.h>
 #include<direct.h>
 #include<dirent.h>
 #include<unistd.h>
 #include<signal.h>
+#include <ShlObj.h>
 #include<cstdlib>
 #include<cstdio>
 #include<ctime>
@@ -35,6 +37,7 @@ int main()
 {	
 	init_command_map(cmd_map);
 	system("cls");
+	get_usr();
 	col(112);
 	cout<<"   Linux Terminal                                         Welcome                                                       ";
 	col(15);
@@ -140,8 +143,8 @@ int main()
 			break;
 
 			case 13:
-			if(len == 1) _DATE("");
-			else _DATE(args[1]);
+			if(len == 1) date("");
+			else date(args[1]);
 			break;
 
 			case 14:
@@ -176,7 +179,8 @@ void fun()
 	string s = current_dir();
 	int p = s.find_last_of("\\/");
 	col(10);
-	cout<<"user@linux-terminal:";
+	cout << user_handle;
+	cout<<"@linux-terminal:";
 	col(9);
 	dir_tree(s.substr(p+1));
 	col(10);
