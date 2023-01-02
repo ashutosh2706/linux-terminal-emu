@@ -14,7 +14,7 @@ int get_command_id(string);
 map<string,int> cmd_map;
 
 void get_usr()
-{	
+{
 	char path[MAX_PATH];
 	string usr_path;
 	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PROFILE, nullptr, 0, path))) { string s(path); usr_path = s; }
@@ -28,13 +28,13 @@ void get_usr()
 		user_handle = s;
 		inf.close();
 	}else
-	{	
+	{
 		string name;
 		cout << "Enter username: ";
 		getline(cin, name);
 		// cout << "Enter password: ";
 		// char c = getch();
-		// while (c != '\r') 
+		// while (c != '\r')
 		// {  // '\r' is the ASCII code for the Enter key
 		// 	pwd += c;
 		// 	c = getch();
@@ -49,12 +49,12 @@ void get_usr()
 }
 
 void init_command_map(map<string,int>& cmd)
-{	
-	vector<string> commands = { "touch", "pwd", "cat", "ls", "help", "exit", "clear", "nautilus", "cd", "mkdir", "rm", "rmdir", "mv", "date", "cat>" };
+{
+	vector<string> commands = { "touch", "pwd", "cat", "ls", "help", "exit", "clear", "nautilus", "cd", "mkdir", "rm", "rmdir", "mv", "date", "cat>", "whoami" };
 	for(int i=0; i<commands.size(); cmd[commands[i]]=i, i++);
 }
 
-string current_dir() 
+string current_dir()
 {
 	return filesystem::current_path().string();
 }
@@ -107,6 +107,10 @@ void disp_help()
 	col(15);
 	cout << " ";
 	col(160);
+	cout<<"whoami";
+	col(15);
+	cout<<" ";
+	col(160);
 	cout << "clear";
 	col(15);
 	cout << " ";
@@ -125,21 +129,21 @@ void dir_tree(string t)
 		cout<<"~";
 	}
 	else cout << "~/" << t;
-	
+
 }
 
 vector<string> list_files()
 {
 	vector<string> list;
 	for (const auto & entry : filesystem::directory_iterator(current_dir()))
-        {	
+        {
 		filesystem::path p = entry.path();
 		string pth = p.string();
 		int index = pth.find_last_of("\\/");
 		list.push_back(pth.substr(index+1));
 	}
 	return list;
-	
+
 }
 
 bool touch_file(string name)
@@ -162,7 +166,7 @@ void change_curr_dir(const char* dir)
 		cout<<" not found"<<endl;
 	}
 }
-	
+
 void make_dir(const char* name)
 {
 	if(mkdir(name)==-1)
@@ -176,7 +180,7 @@ void make_dir(const char* name)
 }
 
 void cat_read(string __fname)
-{	
+{
 
 	ifstream infile; // Declare input file stream
 	infile.open(__fname); // Open file for reading
@@ -201,7 +205,7 @@ void cat_read(string __fname)
 }
 
 void cat_write(string arg)
-{	
+{
 	string file = arg.substr(4), input;
 	ofstream output_file;
 	output_file.open(file);
@@ -223,7 +227,7 @@ void rm_file(string file_name)
 		cout << " : Is a directory" << endl;
 		return;
 	}
-	try 
+	try
 	{
 		if(!(filesystem::remove(file_name)))
 		{
@@ -234,7 +238,7 @@ void rm_file(string file_name)
 			cout << " not found" << endl;
 		}
 	}
-	catch(const filesystem::filesystem_error& err) 
+	catch(const filesystem::filesystem_error& err)
 	{
 		col(192);
 		cout << "filesystem error";
@@ -299,7 +303,7 @@ void rm_dir(string dir_name)
 void date(string arg)
 {
 	time_t now;
-	
+
 	if(arg == "")
 	{
 		// current date/time based on current system
@@ -379,7 +383,7 @@ void date(string arg)
 }
 
 void move(vector<string>& files)
-{	
+{
 	/*  Moving file from one folder to another can be cleverly done using rename(old_name, new_name) method
 		We can pass the new name for file with a prefix string containing "/" concatenated with existing file name
 		Function will treat prefix string before "/" as folder and moves the file into that folder.
@@ -387,7 +391,7 @@ void move(vector<string>& files)
 	*/
 	string dest = files.back();							// For moving multiple files, we store them in an array, and iterate over that array to move them one by one
 	for(int i = 0; i < files.size() - 1; i++)			// Last entry is the destination itself, so iterate from start -> size-1
-	{	
+	{
 		string dir = dest + "/" + files[i];
 		if(rename(files[i].c_str(), dir.c_str()))
 		{

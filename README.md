@@ -17,6 +17,7 @@ Supported Commands:
 - mv
 - date
 - nautilus (explorer.exe on windows)
+- whoami
 - clear
 - exit
 ## Preview

@@ -5,7 +5,7 @@
 #include<dirent.h>
 #include<unistd.h>
 #include<signal.h>
-#include <ShlObj.h>
+#include<ShlObj.h>
 #include<cstdlib>
 #include<cstdio>
 #include<ctime>
@@ -16,7 +16,7 @@
 string get_full_name(vector<string>& args)
 {
 	string name = "";
-	for(int i = 1; i < args.size(); i++) 
+	for(int i = 1; i < args.size(); i++)
 	{
 		if(i != args.size() - 1) { name+=args[i]; name+=" "; }
 		else name+=args[i];
@@ -34,7 +34,7 @@ void log_err(string e, string msg)
 }
 
 int main()
-{	
+{
 	init_command_map(cmd_map);
 	system("cls");
 	get_usr();
@@ -43,8 +43,8 @@ int main()
 	col(15);
 	cout<<"\n\nType 'help' for info\n\n\n";
 	string comm;
-	while(true) 
-	{	
+	while(true)
+	{
 		fun();
 		getline(cin,comm);
 		if(comm=="") continue;
@@ -70,15 +70,15 @@ int main()
 			if(len==1) log_err(args[0], "Missing operand");
 			else cat_read(get_full_name(args));
 			break;
-			
+
 			case 3:
 			{
 				vector<string> list;
 				list = list_files();
 				for(string ss:list)
 				{
-					if(filesystem::is_directory(ss)) 
-					{	
+					if(filesystem::is_directory(ss))
+					{
 						col(144);
 						cout<<ss;
 						col(15);
@@ -110,7 +110,7 @@ int main()
 
 			case 8:
 			if(len==1) log_err(args[0], "Missing operand");
-			else 
+			else
 			{
 				change_curr_dir(get_full_name(args).c_str());
 			}
@@ -134,7 +134,7 @@ int main()
 
 			case 12:
 			if(len < 3) log_err(args[0], "Missing operand");
-			else 
+			else
 			{
 				vector<string> v;
 				for(int i = 1; i < len; i++) v.emplace_back(args[i]);
@@ -151,6 +151,9 @@ int main()
 			log_err(args[0], "Missing operand");
 			break;
 
+            case 15:
+            cout<<user_handle<<endl;
+            break;
 			default:
 			if(args[0].find("cat>") != string::npos) cat_write(args[0]);
 			else
@@ -164,7 +167,7 @@ int main()
 
 	}
 	return EXIT_SUCCESS;
-	
+
 }
 
 
@@ -175,7 +178,7 @@ int get_command_id(string cmd)
 }
 
 void fun()
-{	
+{
 	string s = current_dir();
 	int p = s.find_last_of("\\/");
 	col(10);

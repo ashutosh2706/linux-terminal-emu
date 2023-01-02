@@ -1,0 +1,21 @@
+# depslib dependency file v1.0
+1672668817 source:d:\workspace\terminal\main.cpp
+	<bits/stdc++.h>
+	<conio.h>
+	<windows.h>
+	<direct.h>
+	<dirent.h>
+	<unistd.h>
+	<signal.h>
+	<ShlObj.h>
+	<cstdlib>
+	<cstdio>
+	<ctime>
+	<cstring>
+	<filesystem>
+	"module.h"
+
+1672668942 d:\workspace\terminal\module.h
+
+1672668333 source:d:\workspace\terminal\resources.rc
+
